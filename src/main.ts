@@ -1,4 +1,6 @@
 import { ErrorMapper } from 'utils/ErrorMapper';
+import roleHarvester from 'roles/harvester';
+import regulateRoleSpawn from 'utils/roleSpawnRegulation';
 
 declare global {
     /*
@@ -17,14 +19,31 @@ declare global {
 
     interface CreepMemory {
         role: string;
-        room: string;
-        working: boolean;
+        room?: string;
+        working?: boolean;
+        state?: string;
+    }
+
+    interface RoomMemory {
+        census?: {
+            harvester: number;
+        };
+    }
+
+    interface Role {
+        body: Array<BodyPartConstant>;
+        name: string;
+        min: number;
+        // (creep: Creep): void;
+        run: (c: Creep) => void;
     }
 }
 // Syntax for adding properties to `global` (ex "global.log")
 declare const global: {
     log: any;
 };
+
+const roles = [roleHarvester];
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -35,6 +54,28 @@ export const loop = ErrorMapper.wrapLoop(() => {
     for (const name in Memory.creeps) {
         if (!(name in Game.creeps)) {
             delete Memory.creeps[name];
+        }
+    }
+
+    _.forEach(Game.rooms, (room) => {
+        if (room && room.controller && room.controller.my) {
+            if (!('census' in room.memory)) {
+                room.memory.census = {
+                    harvester: 2,
+                };
+            }
+
+            for (let role of roles) {
+                regulateRoleSpawn(room, role);
+            }
+        }
+    });
+
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        const roleModule = roles.find((role) => role.name === creep.memory.role);
+        if (roleModule) {
+            roleModule.run(creep);
         }
     }
 });
