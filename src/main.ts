@@ -3,6 +3,7 @@ import regulateRoleSpawn from 'utils/roleSpawnRegulation';
 import roleHarvester from 'roles/harvester';
 import upgrader from 'roles/upgrader';
 import builder from 'roles/builder';
+import repairer from 'roles/repairer';
 
 declare global {
     /*
@@ -26,6 +27,7 @@ declare global {
         state?: string;
         upgrading?: boolean;
         building?: boolean;
+        repairing?: boolean;
     }
 
     interface RoomMemory {
@@ -47,7 +49,7 @@ declare const global: {
     log: any;
 };
 
-const roles = [roleHarvester, upgrader, builder];
+const roles = [roleHarvester, upgrader, builder, repairer];
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
