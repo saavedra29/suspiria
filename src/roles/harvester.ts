@@ -13,28 +13,28 @@ var roleHarvester = {
             creep.memory.state = 'TRANSFER';
         }
         // If the creep's state is GET_ENERGY make it harvest energy
-        if (creep.memory.state == 'GET_ENERGY') {
+        if (creep.memory.state === 'GET_ENERGY') {
             const sources = creep.room.find(FIND_SOURCES, {
                 filter: (object) => {
                     return object.energy > 0;
                 },
             });
             const src = creep.pos.findClosestByPath(sources) as Source;
-            if (creep.harvest(src) == ERR_NOT_IN_RANGE) {
+            if (creep.harvest(src) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(src, { visualizePathStyle: { stroke: '#ffaa00' } });
             }
         } else if (creep.memory.state === 'TRANSFER') {
             const targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (
-                        (structure.structureType == STRUCTURE_SPAWN ||
-                            structure.structureType == STRUCTURE_EXTENSION) &&
+                        (structure.structureType === STRUCTURE_SPAWN ||
+                            structure.structureType === STRUCTURE_EXTENSION) &&
                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
                     );
                 },
             });
             if (targets.length > 0) {
-                if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     // TODO Take care if another error is returned apart from ERR_NOT_IN_RANGE
                     creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
                 }
