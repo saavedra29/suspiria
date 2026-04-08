@@ -23,9 +23,7 @@ declare global {
     }
 
     interface RoomMemory {
-        census?: {
-            harvester: number;
-        };
+        census: Map<string, number>;
     }
 
     interface Role {

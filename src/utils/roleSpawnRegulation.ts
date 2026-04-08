@@ -21,10 +21,6 @@ function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_harvester: 
 }
 
 function regulateRoleSpawn(room: Room, role: Role) {
-    if (role.name === 'builder' && Object.keys(room.find(FIND_MY_CONSTRUCTION_SITES)).length === 0) {
-        return;
-    }
-
     const myRoomCreeps = room.find(FIND_MY_CREEPS);
     const roleCreeps = _.filter(myRoomCreeps, (cr) => cr.memory.role === role.name);
     if (roleCreeps.length < _.get(room.memory, ['census', role.name], role.min)) {
