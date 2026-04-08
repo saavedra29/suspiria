@@ -1,18 +1,21 @@
+import { State } from 'types';
+
 const repairer = {
     body: [WORK, CARRY, MOVE, MOVE],
     name: 'repairer',
     min: 2,
+    initState: State.Harvest,
     run: (creep: Creep) => {
-        if (creep.memory.repairing && creep.store[RESOURCE_ENERGY] === 0) {
-            creep.memory.repairing = false;
+        if (creep.memory.state === State.Repair && creep.store[RESOURCE_ENERGY] === 0) {
+            creep.memory.state = State.Harvest;
             creep.say('🔄 harvest');
         }
-        if (!creep.memory.repairing && creep.store.getFreeCapacity() === 0) {
-            creep.memory.repairing = true;
+        if (creep.memory.state === State.Harvest && creep.store.getFreeCapacity() === 0) {
+            creep.memory.state = State.Repair;
             creep.say('⚡ repair');
         }
 
-        if (creep.memory.repairing) {
+        if (creep.memory.state === State.Repair) {
             const damagedTargets = creep.room.find(FIND_STRUCTURES, {
                 filter: (object) => object.hits < object.hitsMax,
             });

@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { State } from 'types';
 
 function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_harvester: boolean): Array<BodyPartConstant> {
     let body: Array<BodyPartConstant> = [];
@@ -37,11 +37,11 @@ function regulateRoleSpawn(room: Room, role: Role) {
         let spawnResult: number;
         if (role.name === 'harvester' && roleCreeps.length < 1) {
             spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, true), newCreepName, {
-                memory: { role: role.name },
+                memory: { role: role.name, state: State.Harvest },
             });
         } else {
             spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, false), newCreepName, {
-                memory: { role: role.name },
+                memory: { role: role.name, state: role.initState },
             });
         }
         if (spawnResult == OK) {

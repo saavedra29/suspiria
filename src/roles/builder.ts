@@ -1,18 +1,21 @@
+import { State } from 'types';
+
 const builder = {
     body: [WORK, CARRY, MOVE, MOVE],
     name: 'builder',
     min: 2,
+    initState: State.Harvest,
     run: (creep: Creep) => {
-        if (creep.memory.building && creep.store[RESOURCE_ENERGY] === 0) {
-            creep.memory.building = false;
+        if (creep.memory.state === State.Build && creep.store[RESOURCE_ENERGY] === 0) {
+            creep.memory.state = State.Harvest;
             creep.say('🔄 harvest');
         }
-        if (!creep.memory.building && creep.store.getFreeCapacity() === 0) {
-            creep.memory.building = true;
+        if (creep.memory.state === State.Harvest && creep.store.getFreeCapacity() === 0) {
+            creep.memory.state = State.Build;
             creep.say('🚧 build');
         }
 
-        if (creep.memory.building) {
+        if (creep.memory.state === State.Build) {
             const constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
             if (constructionSites.length) {
                 const extensionSites = _.filter(

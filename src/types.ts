@@ -7,6 +7,9 @@ declare global {
     Types added in this `global` block are in an ambient, global context. This is needed because `main.ts` is a module file (uses import or export).
     Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
     */
+
+    // Enums
+
     // Memory extension samples
     interface Memory {
         uuid: number;
@@ -15,12 +18,8 @@ declare global {
 
     interface CreepMemory {
         role: string;
-        room: string;
-        working?: boolean;
-        state?: string;
-        upgrading?: boolean;
-        building?: boolean;
-        repairing?: boolean;
+        room?: string;
+        state: State;
     }
 
     interface RoomMemory {
@@ -33,7 +32,7 @@ declare global {
         body: Array<BodyPartConstant>;
         name: string;
         min: number;
-        // (creep: Creep): void;
+        initState: State;
         run: (c: Creep) => void;
     }
 }
@@ -43,3 +42,10 @@ declare const global: {
 };
 
 export {};
+export enum State {
+    Harvest,
+    Upgrade,
+    Repair,
+    Build,
+    Load,
+}

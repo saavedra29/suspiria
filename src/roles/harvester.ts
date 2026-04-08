@@ -1,19 +1,22 @@
+import { State } from 'types';
+
 var roleHarvester = {
     body: [WORK, CARRY, MOVE, MOVE],
     name: 'harvester',
     min: 2,
+    initState: State.Harvest,
 
     /** @param {Creep} creep **/
     run: function (creep: Creep) {
         // If the creep is carrying no energy, set its state to GET_ENERGY.
         // Else if the creep is fully loaded, set its state to 'TRANSFER'.
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-            creep.memory.state = 'GET_ENERGY';
+            creep.memory.state = State.Harvest;
         } else if (creep.store.getFreeCapacity() === 0) {
-            creep.memory.state = 'TRANSFER';
+            creep.memory.state = State.Load;
         }
         // If the creep's state is GET_ENERGY make it harvest energy
-        if (creep.memory.state === 'GET_ENERGY') {
+        if (creep.memory.state === State.Harvest) {
             const sources = creep.room.find(FIND_SOURCES, {
                 filter: (object) => {
                     return object.energy > 0;
@@ -23,7 +26,7 @@ var roleHarvester = {
             if (creep.harvest(src) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(src, { visualizePathStyle: { stroke: '#ffaa00' } });
             }
-        } else if (creep.memory.state === 'TRANSFER') {
+        } else if (creep.memory.state === State.Load) {
             const targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (
