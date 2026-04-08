@@ -1,6 +1,6 @@
 import { State } from 'types';
 
-var roleHarvester = {
+var harvester = {
     body: [WORK, CARRY, MOVE, MOVE],
     name: 'harvester',
     min: 2,
@@ -47,4 +47,4 @@ var roleHarvester = {
 };
 
 // module.exports = roleHarvester;
-export default roleHarvester;
+export default harvester;
