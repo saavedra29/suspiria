@@ -7,7 +7,7 @@ var harvester = {
     initState: State.Harvest,
 
     /** @param {Creep} creep **/
-    run: function (creep: Creep) {
+    run: (creep: Creep) => {
         // If the creep is carrying no energy, set its state to GET_ENERGY.
         // Else if the creep is fully loaded, set its state to 'TRANSFER'.
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
