@@ -19,8 +19,14 @@ function regulateCensus(room: Room) {
                 const sitesNumber = Object.keys(room.find(FIND_MY_CONSTRUCTION_SITES)).length;
                 _.set(room, 'memory.census.builder', sitesNumber ? 2 : 0);
                 break;
+            case 'staticHarvester':
+                const containersNum = room.find(FIND_STRUCTURES, {
+                    filter: { structureType: STRUCTURE_CONTAINER },
+                }).length;
+                _.set(room, 'memory.census.staticHarvester', containersNum);
+                break;
             default:
-                console.log('Found default');
+                console.log(`Can't set census for role ${role}`);
                 break;
         }
     }

@@ -20,6 +20,7 @@ declare global {
         role: string;
         room?: string;
         state: State;
+        assignedContainer?: string;
     }
 
     interface RoomMemory {

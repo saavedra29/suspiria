@@ -1,3 +1,4 @@
+import { spawn } from 'child_process';
 import { State } from 'types';
 
 function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_harvester: boolean): Array<BodyPartConstant> {
@@ -20,6 +21,17 @@ function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_harvester: 
     }
 }
 
+function _getFreeContainerId(room: Room): string | null {
+    const containers = room.find(FIND_STRUCTURES, {
+        filter: { structureType: STRUCTURE_CONTAINER },
+    });
+    const assignedIds = Object.values(Game.creeps)
+        .filter((c) => c.memory.role === 'staticHarvester' && c.memory.assignedContainer)
+        .map((c) => c.memory.assignedContainer);
+    const freeContainer = containers.find((c) => !assignedIds.includes(c.id));
+    return freeContainer ? freeContainer.id : null;
+}
+
 function regulateRoleSpawn(room: Room, role: Role) {
     const myRoomCreeps = room.find(FIND_MY_CREEPS);
     const roleCreeps = _.filter(myRoomCreeps, (cr) => cr.memory.role === role.name);
@@ -30,17 +42,27 @@ function regulateRoleSpawn(room: Room, role: Role) {
             return;
         }
         const newCreepName = role.name + Game.time;
-        let spawnResult: number;
+        let spawnResult: number | null = null;
         if (role.name === 'harvester' && roleCreeps.length < 1) {
             spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, true), newCreepName, {
                 memory: { role: role.name, state: State.Harvest },
             });
+        } else if (role.name === 'staticHarvester') {
+            const containerId = _getFreeContainerId(room);
+            if (containerId) {
+                const body = _getBody(role.body, room, false);
+                spawnResult = freeSpawn.spawnCreep(body, newCreepName, {
+                    memory: { role: role.name, state: State.Harvest, assignedContainer: containerId },
+                });
+            } else {
+                console.log('No container for static harvester. Spawn aborted!');
+            }
         } else {
             spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, false), newCreepName, {
                 memory: { role: role.name, state: role.initState },
             });
         }
-        if (spawnResult == OK) {
+        if (spawnResult === OK) {
             console.log(`Spawning new ${role.name} at room ${room.name}`);
         }
     }
