@@ -4,6 +4,7 @@ var harvester = {
     body: [WORK, CARRY, MOVE, MOVE],
     name: 'harvester',
     min: 2,
+    color: '#93ff6b',
     initState: State.Harvest,
 
     /** @param {Creep} creep **/

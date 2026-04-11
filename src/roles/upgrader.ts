@@ -5,6 +5,7 @@ const upgrader = {
     name: 'upgrader',
     min: 2,
     initState: State.Harvest,
+    color: '#b1deff',
     run: (creep: Creep) => {
         if (creep.memory.state === State.Upgrade && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.state = State.Harvest;

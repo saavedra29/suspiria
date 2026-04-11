@@ -5,6 +5,7 @@ const builder = {
     name: 'builder',
     min: 2,
     initState: State.Harvest,
+    color: '#ffb5af',
     run: (creep: Creep) => {
         if (creep.memory.state === State.Build && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.state = State.Harvest;

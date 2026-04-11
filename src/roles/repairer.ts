@@ -6,6 +6,7 @@ const repairer = {
     name: 'repairer',
     min: 2,
     initState: State.Harvest,
+    color: '#fbfbb6',
     run: (creep: Creep) => {
         if (creep.memory.state === State.Repair && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.state = State.Harvest;

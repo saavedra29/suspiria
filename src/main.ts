@@ -33,6 +33,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
         const roleModule = roles.find((role) => role.name === creep.memory.role);
         if (roleModule) {
             roleModule.run(creep);
+            if (Memory.creepLabels) {
+                creep.room.visual.text(creep.memory.role, creep.pos.x + 0.5, creep.pos.y - 0.5, {
+                    color: roleModule?.color,
+                    opacity: 0.7,
+                    font: 0.4,
+                });
+            }
         }
     }
 });

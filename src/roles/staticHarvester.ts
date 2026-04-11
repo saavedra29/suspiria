@@ -4,6 +4,7 @@ const staticHarvester = {
     body: [WORK, WORK, MOVE],
     name: 'staticHarvester',
     min: 0,
+    color: '#b5ffbedc',
     initState: State.Harvest,
 
     run: (creep: Creep) => {

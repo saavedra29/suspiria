@@ -14,6 +14,7 @@ declare global {
     interface Memory {
         uuid: number;
         log: any;
+        creepLabels: boolean;
     }
 
     interface CreepMemory {
@@ -32,6 +33,7 @@ declare global {
         name: string;
         min: number;
         initState: State;
+        color: string;
         run: (c: Creep) => void;
     }
 }
