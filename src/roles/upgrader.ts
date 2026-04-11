@@ -15,17 +15,24 @@ const upgrader = {
             creep.say('⚡ upgrade');
         }
 
-        const noneEmptySources = creep.room.find(FIND_SOURCES, {
-            filter: (object) => {
-                return object.energy > 0;
-            },
+        // const noneEmptySources = creep.room.find(FIND_SOURCES, {
+        //     filter: (object) => {
+        //         return object.energy > 0;
+        //     },
+        // });
+
+        const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
+            filter: (s) =>
+                s.structureType === STRUCTURE_CONTAINER &&
+                (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY),
         });
-        const closestSource = creep.pos.findClosestByPath(noneEmptySources);
 
         if (creep.memory.state === State.Upgrade) {
             if (!creep.room.controller) return;
-            if (closestSource) {
-                const distanceFromSource = creep.pos.getRangeTo(closestSource);
+            if (nonEmptyContainers.length) {
+                const distanceFromSource = creep.pos.getRangeTo(nonEmptyContainers[0]);
+                // TODO Here the upgrader take care not to stay close to the energy storage when idle
+                // in order not to bother (enhance)
                 if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE || distanceFromSource <= 1) {
                     creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
@@ -35,9 +42,9 @@ const upgrader = {
                 }
             }
         } else {
-            if (closestSource) {
-                if (creep.harvest(closestSource) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(closestSource, { visualizePathStyle: { stroke: '#ffaa00' } });
+            if (nonEmptyContainers.length) {
+                if (creep.withdraw(nonEmptyContainers[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(nonEmptyContainers[0], { visualizePathStyle: { stroke: '#ffaa00' } });
                 }
             }
         }
