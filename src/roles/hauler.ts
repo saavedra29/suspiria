@@ -1,8 +1,8 @@
 import { State } from 'types';
 
-var harvester = {
+const hauler = {
     body: [WORK, CARRY, MOVE, MOVE],
-    name: 'harvester',
+    name: 'hauler',
     min: 2,
     color: '#93ff6b',
     initState: State.Harvest,
@@ -16,16 +16,19 @@ var harvester = {
         } else if (creep.store.getFreeCapacity() === 0) {
             creep.memory.state = State.Load;
         }
-        // If the creep's state is GET_ENERGY make it harvest energy
         if (creep.memory.state === State.Harvest) {
-            const sources = creep.room.find(FIND_SOURCES, {
-                filter: (object) => {
-                    return object.energy > 0;
-                },
+            const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) =>
+                    s.structureType === STRUCTURE_CONTAINER &&
+                    (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY),
             });
-            const src = creep.pos.findClosestByPath(sources) as Source;
-            if (creep.harvest(src) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(src, { visualizePathStyle: { stroke: '#ffaa00' } });
+            if (nonEmptyContainers.length) {
+                const closestNonEmptyContainer = creep.pos.findClosestByPath(nonEmptyContainers);
+                if (closestNonEmptyContainer) {
+                    if (creep.withdraw(closestNonEmptyContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
+                }
             }
         } else if (creep.memory.state === State.Load) {
             const targets = creep.room.find(FIND_STRUCTURES, {
@@ -47,5 +50,4 @@ var harvester = {
     },
 };
 
-// module.exports = roleHarvester;
-export default harvester;
+export default hauler;

@@ -3,8 +3,8 @@ import { roles } from 'main';
 function regulateCensus(room: Room) {
     for (const role of roles.map((r) => r.name).reverse()) {
         switch (role) {
-            case 'harvester':
-                _.set(room, 'memory.census.harvester', 2);
+            case 'hauler':
+                _.set(room, 'memory.census.hauler', 2);
                 break;
             case 'upgrader':
                 _.set(room, 'memory.census.upgrader', 2);

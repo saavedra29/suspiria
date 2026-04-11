@@ -1,11 +1,11 @@
 import { spawn } from 'child_process';
 import { State } from 'types';
 
-function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_harvester: boolean): Array<BodyPartConstant> {
+function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_hauler: boolean): Array<BodyPartConstant> {
     let body: Array<BodyPartConstant> = [];
     const segmentCost = _.sum(segment, (s) => BODYPART_COST[s]);
     let maxSegments: number;
-    if (zero_harvester) {
+    if (zero_hauler) {
         maxSegments = Math.floor(room.energyAvailable / segmentCost);
     } else {
         maxSegments = Math.floor(room.energyCapacityAvailable / segmentCost);
@@ -43,7 +43,7 @@ function regulateRoleSpawn(room: Room, role: Role) {
         }
         const newCreepName = role.name + Game.time;
         let spawnResult: number | null = null;
-        if (role.name === 'harvester' && roleCreeps.length < 1) {
+        if (role.name === 'hauler' && roleCreeps.length < 1) {
             spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, true), newCreepName, {
                 memory: { role: role.name, state: State.Harvest },
             });
