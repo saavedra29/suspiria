@@ -1,13 +1,7 @@
 import { ErrorMapper } from 'utils/ErrorMapper';
 import regulateRoleSpawn from 'utils/roleSpawnRegulation';
 import regulateCensus from 'utils/censusRegulation';
-import hauler from 'roles/hauler';
-import upgrader from 'roles/upgrader';
-import builder from 'roles/builder';
-import repairer from 'roles/repairer';
-import staticHarvester from 'roles/staticHarvester';
-
-export const roles = [hauler, upgrader, builder, staticHarvester, repairer].reverse();
+import roles from 'roles/all';
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code

@@ -1,4 +1,4 @@
-import { roles } from 'main';
+import roles from 'roles/all';
 
 function regulateCensus(room: Room) {
     for (const role of roles.map((r) => r.name).reverse()) {
