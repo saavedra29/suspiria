@@ -1,3 +1,4 @@
+import { close } from 'fs';
 import { State } from 'types';
 
 const repairer = {
@@ -27,10 +28,17 @@ const repairer = {
                 }
             }
         } else {
-            const src = creep.pos.findClosestByPath(FIND_SOURCES);
-            if (src) {
-                if (creep.harvest(src) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(src, { visualizePathStyle: { stroke: '#ffaa00' } });
+            const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) =>
+                    s.structureType === STRUCTURE_CONTAINER &&
+                    (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY),
+            });
+            if (nonEmptyContainers.length) {
+                const closestNonEmptyContainer = creep.pos.findClosestByPath(nonEmptyContainers);
+                if (closestNonEmptyContainer) {
+                    if (creep.withdraw(closestNonEmptyContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
                 }
             }
         }
