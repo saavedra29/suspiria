@@ -30,20 +30,19 @@ const builder = {
                 }
             }
         } else {
-            const nonEmptyEnergySources = creep.room.find(FIND_SOURCES, {
-                filter: (object) => {
-                    return object.energy > 0;
-                },
+            const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) =>
+                    s.structureType === STRUCTURE_CONTAINER &&
+                    (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY),
             });
-            if (nonEmptyEnergySources.length) {
-                const closestSource = creep.pos.findClosestByPath(nonEmptyEnergySources);
-                if (closestSource) {
-                    if (creep.harvest(closestSource) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestSource, { visualizePathStyle: { stroke: '#ffaa00' } });
+            if (nonEmptyContainers.length) {
+                const closestNonEmptyContainer = creep.pos.findClosestByPath(nonEmptyContainers);
+                if (closestNonEmptyContainer) {
+                    if (creep.withdraw(closestNonEmptyContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
                     }
                 }
             }
-            // TODO Since non empty sources are not found get source from storage
         }
     },
 };
