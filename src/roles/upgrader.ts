@@ -43,8 +43,11 @@ const upgrader = {
             }
         } else {
             if (nonEmptyContainers.length) {
-                if (creep.withdraw(nonEmptyContainers[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(nonEmptyContainers[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                const closestNonEmptyContainer = creep.pos.findClosestByPath(nonEmptyContainers);
+                if (closestNonEmptyContainer) {
+                    if (creep.withdraw(closestNonEmptyContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
                 }
             }
         }
