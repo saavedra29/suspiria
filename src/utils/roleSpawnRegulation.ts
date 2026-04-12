@@ -1,17 +1,33 @@
 import { State } from 'types';
 
-function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_hauler: boolean): Array<BodyPartConstant> {
+function _getBody(
+    segment: Array<BodyPartConstant>,
+    room: Room,
+    zero_hauler: boolean,
+    staticHarvester: boolean,
+): Array<BodyPartConstant> {
     let body: Array<BodyPartConstant> = [];
-    const segmentCost = _.sum(segment, (s) => BODYPART_COST[s]);
-    let maxSegments: number;
-    if (zero_hauler) {
-        maxSegments = Math.floor(room.energyAvailable / segmentCost);
+    if (staticHarvester) {
+        let maxSegments: number;
+        const workpart = segment.slice(0, -1);
+        const segmentCost = _.sum(workpart, (s) => BODYPART_COST[s]);
+        maxSegments = Math.floor((room.energyAvailable - 50) / segmentCost);
+        _.times(maxSegments, () => {
+            _.forEach(workpart, (s) => body.push(s));
+        });
+        body.push(MOVE);
     } else {
-        maxSegments = Math.floor(room.energyCapacityAvailable / segmentCost);
+        const segmentCost = _.sum(segment, (s) => BODYPART_COST[s]);
+        let maxSegments: number;
+        if (zero_hauler) {
+            maxSegments = Math.floor(room.energyAvailable / segmentCost);
+        } else {
+            maxSegments = Math.floor(room.energyCapacityAvailable / segmentCost);
+        }
+        _.times(maxSegments, () => {
+            _.forEach(segment, (s) => body.push(s));
+        });
     }
-    _.times(maxSegments, () => {
-        _.forEach(segment, (s) => body.push(s));
-    });
 
     if (body.length <= 50) {
         return body;
@@ -43,13 +59,13 @@ function regulateRoleSpawn(room: Room, role: Role) {
         const newCreepName = role.name + Game.time;
         let spawnResult: number | null = null;
         if (role.name === 'hauler' && roleCreeps.length < 1) {
-            spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, true), newCreepName, {
+            spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, true, false), newCreepName, {
                 memory: { role: role.name, state: State.Harvest },
             });
         } else if (role.name === 'staticHarvester') {
             const containerId = _getFreeContainerId(room);
             if (containerId) {
-                const body = _getBody(role.body, room, false);
+                const body = _getBody(role.body, room, false, true);
                 spawnResult = freeSpawn.spawnCreep(body, newCreepName, {
                     memory: { role: role.name, state: State.Harvest, assignedContainer: containerId },
                 });
@@ -57,7 +73,7 @@ function regulateRoleSpawn(room: Room, role: Role) {
                 console.log('No container for static harvester. Spawn aborted!');
             }
         } else {
-            spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, false), newCreepName, {
+            spawnResult = freeSpawn.spawnCreep(_getBody(role.body, room, false, false), newCreepName, {
                 memory: { role: role.name, state: role.initState },
             });
         }
