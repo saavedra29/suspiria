@@ -1,4 +1,3 @@
-import { spawn } from 'child_process';
 import { State } from 'types';
 
 function _getBody(segment: Array<BodyPartConstant>, room: Room, zero_hauler: boolean): Array<BodyPartConstant> {

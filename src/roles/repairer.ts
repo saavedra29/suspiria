@@ -41,6 +41,18 @@ const repairer = {
                         creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
                     }
                 }
+            } else {
+                const nonEmptySources = creep.room.find(FIND_SOURCES, {
+                    filter: function (object) {
+                        return object.energy > 0;
+                    },
+                });
+                let closestNonEmptySource = creep.pos.findClosestByPath(nonEmptySources);
+                if (closestNonEmptySource) {
+                    if (creep.harvest(closestNonEmptySource) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestNonEmptySource, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
+                }
             }
         }
     },
