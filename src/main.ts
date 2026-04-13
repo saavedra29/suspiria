@@ -2,6 +2,7 @@ import { ErrorMapper } from 'utils/ErrorMapper';
 import regulateRoleSpawn from 'utils/roleSpawnRegulation';
 import regulateCensus from 'utils/censusRegulation';
 import roles from 'roles/all';
+import roomDefence from 'utils/roomDefence';
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -15,6 +16,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     _.forEach(Game.rooms, (room) => {
         if (room && room.controller && room.controller.my) {
+            if (room.find(FIND_HOSTILE_CREEPS).length) {
+                _.set(room.memory, 'underAttack', true);
+            } else {
+                _.set(room.memory, 'underAttack', false);
+            }
+            roomDefence(room);
             regulateCensus(room);
             for (let role of roles) {
                 regulateRoleSpawn(room, role);

@@ -43,19 +43,22 @@ const hauler = {
                 }
             }
         } else if (creep.memory.state === State.Load) {
-            const targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (
-                        (structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_EXTENSION) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-                    );
-                },
+            const spawns = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) => s.structureType === STRUCTURE_SPAWN && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
             });
-            if (targets.length > 0) {
-                if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    // TODO Take care if another error is returned apart from ERR_NOT_IN_RANGE
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+            const extensions = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) => s.structureType === STRUCTURE_EXTENSION && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+            });
+            const towers = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) => s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+            });
+            const targets = spawns.length ? spawns : extensions.length ? extensions : towers;
+            if (targets.length) {
+                const closestTarget = creep.pos.findClosestByPath(targets);
+                if (closestTarget) {
+                    if (creep.transfer(closestTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestTarget, { visualizePathStyle: { stroke: '#ffffff' } });
+                    }
                 }
             }
         }
