@@ -11,7 +11,7 @@ function _getBody(
         let maxSegments: number;
         const workpart = segment.slice(0, -1);
         const segmentCost = _.sum(workpart, (s) => BODYPART_COST[s]);
-        maxSegments = Math.floor((room.energyAvailable - 50) / segmentCost);
+        maxSegments = Math.floor((room.energyCapacityAvailable - 50) / segmentCost);
         _.times(maxSegments, () => {
             _.forEach(workpart, (s) => body.push(s));
         });
