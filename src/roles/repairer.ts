@@ -8,7 +8,7 @@ const REPAIR_PRIORITIES = {
     [STRUCTURE_EXTENSION]: 9, // economy-critical
     [STRUCTURE_RAMPART]: 7, // defense + decays
     [STRUCTURE_WALL]: 5, // defense (no decay)
-    [STRUCTURE_ROAD]: 1, // lowest
+    [STRUCTURE_ROAD]: 2, // lowest
 };
 
 function getHitmax(target: Structure): number {
@@ -62,6 +62,7 @@ const repairer = {
             if (repairResult === ERR_NOT_IN_RANGE) {
                 creep.moveTo(target as Structure, {
                     range: 3,
+                    maxRooms: 1,
                     visualizePathStyle: { stroke: '#ffaa00', opacity: 0.6 },
                 });
             }
