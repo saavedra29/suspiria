@@ -1,5 +1,29 @@
-import { close } from 'fs';
 import { State } from 'types';
+
+const REPAIRABLE_TYPES = ['container', 'tower', 'rampart', 'road', 'spawn', 'extension', 'constructedWall'];
+const REPAIR_PRIORITIES = {
+    [STRUCTURE_CONTAINER]: 10, // critical storage
+    [STRUCTURE_TOWER]: 9, // defense
+    [STRUCTURE_SPAWN]: 9, // economy-critical
+    [STRUCTURE_EXTENSION]: 9, // economy-critical
+    [STRUCTURE_RAMPART]: 7, // defense + decays
+    [STRUCTURE_WALL]: 5, // defense (no decay)
+    [STRUCTURE_ROAD]: 1, // lowest
+};
+
+function getHitmax(target: Structure): number {
+    if (target.structureType === STRUCTURE_RAMPART || target.structureType === STRUCTURE_WALL) {
+        return target.hitsMax / 50;
+    } else {
+        return target.hitsMax;
+    }
+}
+
+function getUrgency(structure: Structure): number {
+    let health = structure.hits / getHitmax(structure);
+    let urgency = REPAIR_PRIORITIES[structure.structureType as keyof typeof REPAIR_PRIORITIES] * (1 - health);
+    return urgency;
+}
 
 const repairer = {
     body: [WORK, CARRY, MOVE, MOVE],
@@ -18,15 +42,28 @@ const repairer = {
         }
 
         if (creep.memory.state === State.Repair) {
-            const damagedTargets = creep.room.find(FIND_STRUCTURES, {
-                filter: (object) => object.hits < object.hitsMax,
-            });
-            // TODO Prefer containers before anything else
-            damagedTargets.sort((a, b) => a.hits - b.hits);
-            if (damagedTargets.length) {
-                if (creep.repair(damagedTargets[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(damagedTargets[0]);
+            let target = Game.getObjectById(creep.memory.repairTarget as Id<_HasId>) as Structure | null;
+            if (!target || getHitmax(target) <= target.hits) {
+                const candidates = creep.room.find(FIND_STRUCTURES, {
+                    filter: (s: Structure) => {
+                        return REPAIRABLE_TYPES.includes(s.structureType) && s.hits < getHitmax(s);
+                    },
+                });
+                if (!candidates.length) {
+                    creep.memory.repairTarget = null;
+                    return;
                 }
+                candidates.sort((a, b) => getUrgency(b) - getUrgency(a));
+                target = candidates[0];
+                creep.memory.repairTarget = target.id;
+            }
+
+            const repairResult = creep.repair(target as Structure);
+            if (repairResult === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target as Structure, {
+                    range: 3,
+                    visualizePathStyle: { stroke: '#ffaa00', opacity: 0.6 },
+                });
             }
         } else {
             const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {

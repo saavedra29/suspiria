@@ -22,6 +22,7 @@ declare global {
         room?: string;
         state: State;
         assignedContainer?: string;
+        repairTarget?: Id<Structure> | null;
     }
 
     interface RoomMemory {
