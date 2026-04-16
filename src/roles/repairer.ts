@@ -2,13 +2,13 @@ import { State } from 'types';
 
 const REPAIRABLE_TYPES = ['container', 'tower', 'rampart', 'road', 'spawn', 'extension', 'constructedWall'];
 const REPAIR_PRIORITIES = {
-    [STRUCTURE_CONTAINER]: 10, // critical storage
-    [STRUCTURE_TOWER]: 9, // defense
-    [STRUCTURE_SPAWN]: 9, // economy-critical
-    [STRUCTURE_EXTENSION]: 9, // economy-critical
-    [STRUCTURE_RAMPART]: 7, // defense + decays
-    [STRUCTURE_WALL]: 5, // defense (no decay)
-    [STRUCTURE_ROAD]: 2, // lowest
+    [STRUCTURE_CONTAINER]: 10,
+    [STRUCTURE_TOWER]: 9,
+    [STRUCTURE_SPAWN]: 9,
+    [STRUCTURE_EXTENSION]: 9,
+    [STRUCTURE_RAMPART]: 7,
+    [STRUCTURE_WALL]: 5,
+    [STRUCTURE_ROAD]: 5,
 };
 
 function getHitmax(target: Structure): number {
@@ -19,10 +19,21 @@ function getHitmax(target: Structure): number {
     }
 }
 
-function getUrgency(structure: Structure): number {
-    let health = structure.hits / getHitmax(structure);
-    let urgency = REPAIR_PRIORITIES[structure.structureType as keyof typeof REPAIR_PRIORITIES] * (1 - health);
-    return urgency;
+function getThreshold(structure: Structure, fullRepairMode: boolean): number {
+    if (
+        fullRepairMode &&
+        (structure.structureType === STRUCTURE_RAMPART || structure.structureType === STRUCTURE_WALL)
+    ) {
+        return structure.hitsMax; // full over-repair
+    }
+    return getHitmax(structure); // normal mode (walls/ramparts only to /50)
+}
+
+function getUrgencyForMode(structure: Structure, fullRepairMode: boolean): number {
+    const targetHits = getThreshold(structure, fullRepairMode);
+    if (targetHits <= 0) return 0;
+    const health = structure.hits / targetHits;
+    return REPAIR_PRIORITIES[structure.structureType as keyof typeof REPAIR_PRIORITIES] * (1 - health);
 }
 
 const repairer = {
@@ -43,28 +54,59 @@ const repairer = {
 
         if (creep.memory.state === State.Repair) {
             let target = Game.getObjectById(creep.memory.repairTarget as Id<_HasId>) as Structure | null;
-            if (!target || getHitmax(target) <= target.hits) {
-                const candidates = creep.room.find(FIND_STRUCTURES, {
-                    filter: (s: Structure) => {
-                        return REPAIRABLE_TYPES.includes(s.structureType) && s.hits < getHitmax(s);
-                    },
-                });
+
+            // Decide current mode
+            const normalNeeds = creep.room.find(FIND_STRUCTURES, {
+                filter: (s: Structure) => REPAIRABLE_TYPES.includes(s.structureType) && s.hits < getHitmax(s),
+            });
+            const isFullRepairMode = normalNeeds.length === 0;
+
+            // Check if current target is still valid for the current mode
+            const getCurrentThreshold = (s: Structure) => getThreshold(s, isFullRepairMode);
+            const isTargetValid =
+                target && REPAIRABLE_TYPES.includes(target.structureType) && target.hits < getCurrentThreshold(target);
+
+            if (!isTargetValid) {
+                // Pick a new target
+                let candidates: Structure[];
+
+                if (isFullRepairMode) {
+                    // Full repair mode: only walls/ramparts up to absolute hitsMax
+                    candidates = creep.room.find(FIND_STRUCTURES, {
+                        filter: (s: Structure) =>
+                            (s.structureType === STRUCTURE_RAMPART || s.structureType === STRUCTURE_WALL) &&
+                            s.hits < s.hitsMax,
+                    });
+                } else {
+                    // Normal mode - exactly like your original code
+                    candidates = normalNeeds;
+                }
+
                 if (!candidates.length) {
                     creep.memory.repairTarget = null;
-                    return;
+                    return; // everything is at maximum → idle
                 }
-                candidates.sort((a, b) => getUrgency(b) - getUrgency(a));
+
+                // Sort by urgency in the current mode
+                candidates.sort(
+                    (a, b) => getUrgencyForMode(b, isFullRepairMode) - getUrgencyForMode(a, isFullRepairMode),
+                );
+
                 target = candidates[0];
                 creep.memory.repairTarget = target.id;
             }
 
-            const repairResult = creep.repair(target as Structure);
-            if (repairResult === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target as Structure, {
-                    range: 3,
-                    maxRooms: 1,
-                    visualizePathStyle: { stroke: '#ffaa00', opacity: 0.6 },
-                });
+            // === SAFE REPAIR (target is guaranteed to exist here) ===
+            if (target) {
+                const repairResult = creep.repair(target);
+
+                if (repairResult === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, {
+                        range: 3,
+                        maxRooms: 1,
+                        visualizePathStyle: { stroke: '#ffffff' },
+                    });
+                }
             }
         } else {
             const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
