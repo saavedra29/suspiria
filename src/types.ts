@@ -21,7 +21,7 @@ declare global {
         role: string;
         room?: string;
         state: State;
-        assignedContainer?: string;
+        assignedContainer?: Id<StructureContainer> | null;
         repairTarget?: Id<Structure> | null;
     }
 

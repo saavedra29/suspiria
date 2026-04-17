@@ -1,4 +1,5 @@
 import { State } from 'types';
+import { getFreeContainerId } from './utils';
 
 function _getBody(
     segment: Array<BodyPartConstant>,
@@ -36,17 +37,6 @@ function _getBody(
     }
 }
 
-function _getFreeContainerId(room: Room): string | null {
-    const containers = room.find(FIND_STRUCTURES, {
-        filter: { structureType: STRUCTURE_CONTAINER },
-    });
-    const assignedIds = Object.values(Game.creeps)
-        .filter((c) => c.memory.role === 'staticHarvester' && c.memory.assignedContainer)
-        .map((c) => c.memory.assignedContainer);
-    const freeContainer = containers.find((c) => !assignedIds.includes(c.id));
-    return freeContainer ? freeContainer.id : null;
-}
-
 function regulateRoleSpawn(room: Room, role: Role) {
     const myRoomCreeps = room.find(FIND_MY_CREEPS);
     const roleCreeps = _.filter(myRoomCreeps, (cr) => cr.memory.role === role.name);
@@ -63,7 +53,7 @@ function regulateRoleSpawn(room: Room, role: Role) {
                 memory: { role: role.name, state: State.Harvest },
             });
         } else if (role.name === 'staticHarvester') {
-            const containerId = _getFreeContainerId(room);
+            const containerId = getFreeContainerId(room);
             if (containerId) {
                 const body = _getBody(role.body, room, false, true);
                 spawnResult = freeSpawn.spawnCreep(body, newCreepName, {
