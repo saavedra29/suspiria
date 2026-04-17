@@ -1,0 +1,23 @@
+{
+    "repair_priorities": {
+        "container": 10,
+        "tower": 9,
+        "spawn": 9,
+        "extension": 9,
+        "rampart": 7,
+        "wall": 5,
+        "road": 8
+    },
+    "census": {
+        "hauler": 2,
+        "upgrader": 2,
+        "repairer": 2,
+        "builder": 2
+    },
+    "visuals": {
+        "creep_label": {
+            "font_size": 0.4,
+            "opacity": 0.7
+        }
+    }
+}

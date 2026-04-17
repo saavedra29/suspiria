@@ -1,14 +1,15 @@
 import { State } from 'types';
+import config from '../config.json';
 
 const REPAIRABLE_TYPES = ['container', 'tower', 'rampart', 'road', 'spawn', 'extension', 'constructedWall'];
 const REPAIR_PRIORITIES = {
-    [STRUCTURE_CONTAINER]: 10,
-    [STRUCTURE_TOWER]: 9,
-    [STRUCTURE_SPAWN]: 9,
-    [STRUCTURE_EXTENSION]: 9,
-    [STRUCTURE_RAMPART]: 7,
-    [STRUCTURE_WALL]: 5,
-    [STRUCTURE_ROAD]: 5,
+    [STRUCTURE_CONTAINER]: config.repair_priorities.container,
+    [STRUCTURE_TOWER]: config.repair_priorities.tower,
+    [STRUCTURE_SPAWN]: config.repair_priorities.spawn,
+    [STRUCTURE_EXTENSION]: config.repair_priorities.extension,
+    [STRUCTURE_RAMPART]: config.repair_priorities.rampart,
+    [STRUCTURE_WALL]: config.repair_priorities.wall,
+    [STRUCTURE_ROAD]: config.repair_priorities.road,
 };
 
 function getHitmax(target: Structure): number {

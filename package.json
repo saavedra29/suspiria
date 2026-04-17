@@ -30,6 +30,7 @@
     "homepage": "https://github.com/screepers/screeps-typescript-starter#readme",
     "devDependencies": {
         "@rollup/plugin-commonjs": "^29.0.2",
+        "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-node-resolve": "^16.0.3",
         "@types/chai": "^4.1.6",
         "@types/lodash": "3.10.2",

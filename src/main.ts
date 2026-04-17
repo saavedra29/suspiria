@@ -3,6 +3,7 @@ import regulateRoleSpawn from 'utils/roleSpawnRegulation';
 import regulateCensus from 'utils/censusRegulation';
 import roles from 'roles/all';
 import roomDefence from 'utils/roomDefence';
+import config from './config.json';
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -37,8 +38,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
             if (Memory.creepLabels) {
                 creep.room.visual.text(creep.memory.role, creep.pos.x + 0.5, creep.pos.y - 0.5, {
                     color: roleModule?.color,
-                    opacity: 0.7,
-                    font: 0.4,
+                    opacity: config.visuals.creep_label.opacity,
+                    font: config.visuals.creep_label.font_size,
                 });
             }
         }
