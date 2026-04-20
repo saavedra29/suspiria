@@ -4,7 +4,10 @@ import regulateCensus from 'utils/censusRegulation';
 import roles from 'roles/all';
 import roomDefence from 'utils/roomDefence';
 import config from './config.json';
+import bunker_data from './bunker.json';
+import { maintainBunker, BunkerScheme } from 'bunkers/bunker';
 
+const bunker: BunkerScheme = bunker_data;
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -17,6 +20,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     _.forEach(Game.rooms, (room) => {
         if (room && room.controller && room.controller.my) {
+            maintainBunker(room, bunker);
             if (room.find(FIND_HOSTILE_CREEPS).length) {
                 _.set(room.memory, 'underAttack', true);
             } else {
