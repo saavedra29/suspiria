@@ -52,7 +52,10 @@ const hauler = {
             const towers = creep.room.find(FIND_STRUCTURES, {
                 filter: (s) => s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
             });
-            const targets = spawns.length ? spawns : extensions.length ? extensions : towers;
+            const storages = creep.room.find(FIND_STRUCTURES, {
+                filter: (s) => s.structureType === STRUCTURE_STORAGE && s.store.getCapacity(RESOURCE_ENERGY) > 0,
+            });
+            const targets = spawns.length ? spawns : extensions.length ? extensions : towers.length ? towers : storages;
             if (targets.length) {
                 const closestTarget = creep.pos.findClosestByPath(targets);
                 if (closestTarget) {
