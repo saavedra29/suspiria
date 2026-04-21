@@ -65,8 +65,8 @@ export function maintainBunker(room: Room, scheme: BunkerScheme): void {
     const anchorX = anchorSpawn.pos.x;
     const anchorY = anchorSpawn.pos.y;
 
-    // Build map: absolute "x,y" → desired structure type
-    const desired = new Map<string, string>(); // key = "x,y"
+    // Build map: absolute "x,y" → SET of desired structure types (supports road + rampart etc.)
+    const desired = new Map<string, Set<string>>();
 
     for (const [structureType, positions] of Object.entries(levelScheme)) {
         if (!Array.isArray(positions)) continue;
@@ -78,7 +78,10 @@ export function maintainBunker(room: Room, scheme: BunkerScheme): void {
             if (absX < 0 || absX > 49 || absY < 0 || absY > 49) continue;
 
             const key = `${absX},${absY}`;
-            desired.set(key, structureType);
+            if (!desired.has(key)) {
+                desired.set(key, new Set<string>());
+            }
+            desired.get(key)!.add(structureType);
         }
     }
 
@@ -94,7 +97,7 @@ export function maintainBunker(room: Room, scheme: BunkerScheme): void {
     // }
 
     // 2. Create missing construction sites exactly where the scheme says
-    for (const [key, wantedType] of desired) {
+    for (const [key, wantedTypeSet] of desired) {
         const [xStr, yStr] = key.split(',');
         const x = parseInt(xStr, 10);
         const y = parseInt(yStr, 10);
@@ -102,14 +105,23 @@ export function maintainBunker(room: Room, scheme: BunkerScheme): void {
         const structuresHere = room.lookForAt(LOOK_STRUCTURES, x, y);
         const sitesHere = room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
 
-        const hasCorrectStructure = structuresHere.some((s) => s.structureType === wantedType);
-        const hasCorrectSite = sitesHere.some((s) => s.structureType === wantedType);
+        const wantedTypes = Array.from(wantedTypeSet).sort((a, b) => {
+            if (a === STRUCTURE_RAMPART) return 1;
+            if (b === STRUCTURE_RAMPART) return -1;
+            return 0;
+        });
 
-        if (hasCorrectStructure || hasCorrectSite) {
-            continue;
+        for (const wantedType of wantedTypes) {
+            const hasCorrectStructure = structuresHere.some((s) => s.structureType === wantedType);
+            const hasCorrectSite = sitesHere.some((s) => s.structureType === wantedType);
+
+            if (hasCorrectStructure || hasCorrectSite) {
+                continue;
+            }
+
+            // Create it (Screeps silently fails for invalid cases like rampart on a tower/spawn, full RCL, etc.)
+            room.createConstructionSite(x, y, wantedType as BuildableStructureConstant);
+            break;
         }
-
-        // Create it (Screeps will silently fail for invalid cases like too many spawns, full RCL, etc.)
-        room.createConstructionSite(x, y, wantedType as BuildableStructureConstant);
     }
 }
