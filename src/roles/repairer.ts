@@ -1,19 +1,29 @@
 import { State } from 'types';
 import config from '../config.json';
 
-const REPAIRABLE_TYPES = ['container', 'tower', 'rampart', 'road', 'spawn', 'extension', 'constructedWall'];
 const REPAIR_PRIORITIES = {
-    [STRUCTURE_CONTAINER]: config.repair_priorities.container,
-    [STRUCTURE_TOWER]: config.repair_priorities.tower,
     [STRUCTURE_SPAWN]: config.repair_priorities.spawn,
     [STRUCTURE_EXTENSION]: config.repair_priorities.extension,
-    [STRUCTURE_RAMPART]: config.repair_priorities.rampart,
-    [STRUCTURE_WALL]: config.repair_priorities.wall,
     [STRUCTURE_ROAD]: config.repair_priorities.road,
+    [STRUCTURE_WALL]: config.repair_priorities.constructredWall,
+    [STRUCTURE_LINK]: config.repair_priorities.link,
+    [STRUCTURE_STORAGE]: config.repair_priorities.storage,
+    [STRUCTURE_TOWER]: config.repair_priorities.tower,
+    [STRUCTURE_OBSERVER]: config.repair_priorities.observer,
+    [STRUCTURE_POWER_SPAWN]: config.repair_priorities.powerSpawn,
+    [STRUCTURE_EXTRACTOR]: config.repair_priorities.extractor,
+    [STRUCTURE_LAB]: config.repair_priorities.lab,
+    [STRUCTURE_TERMINAL]: config.repair_priorities.terminal,
+    [STRUCTURE_CONTAINER]: config.repair_priorities.container,
+    [STRUCTURE_NUKER]: config.repair_priorities.nuker,
+    [STRUCTURE_FACTORY]: config.repair_priorities.factory,
 };
 
+// Don't exclude any structure from repairing
+const REPAIRABLE_TYPES = Object.keys(REPAIR_PRIORITIES);
+
 function getHitmax(target: Structure): number {
-    if (target.structureType === STRUCTURE_RAMPART || target.structureType === STRUCTURE_WALL) {
+    if (target.structureType === STRUCTURE_WALL) {
         return target.hitsMax / 50;
     } else {
         return target.hitsMax;
@@ -21,13 +31,10 @@ function getHitmax(target: Structure): number {
 }
 
 function getThreshold(structure: Structure, fullRepairMode: boolean): number {
-    if (
-        fullRepairMode &&
-        (structure.structureType === STRUCTURE_RAMPART || structure.structureType === STRUCTURE_WALL)
-    ) {
+    if (fullRepairMode && structure.structureType === STRUCTURE_WALL) {
         return structure.hitsMax; // full over-repair
     }
-    return getHitmax(structure); // normal mode (walls/ramparts only to /50)
+    return getHitmax(structure); // normal mode (walls only to /50)
 }
 
 function getUrgencyForMode(structure: Structure, fullRepairMode: boolean): number {
@@ -72,11 +79,9 @@ const repairer = {
                 let candidates: Structure[];
 
                 if (isFullRepairMode) {
-                    // Full repair mode: only walls/ramparts up to absolute hitsMax
+                    // Full repair mode: only walls up to absolute hitsMax
                     candidates = creep.room.find(FIND_STRUCTURES, {
-                        filter: (s: Structure) =>
-                            (s.structureType === STRUCTURE_RAMPART || s.structureType === STRUCTURE_WALL) &&
-                            s.hits < s.hitsMax,
+                        filter: (s: Structure) => s.structureType === STRUCTURE_WALL && s.hits < s.hitsMax,
                     });
                 } else {
                     // Normal mode - exactly like your original code

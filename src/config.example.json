@@ -1,22 +1,31 @@
 {
     "repair_priorities": {
-        "container": 10,
-        "tower": 9,
-        "spawn": 9,
+        "spawn": 10,
         "extension": 9,
-        "rampart": 7,
-        "wall": 5,
-        "road": 8
+        "road": 8,
+        "constructredWall": 5,
+        "link": 5,
+        "storage": 5,
+        "tower": 8,
+        "observer": 5,
+        "powerSpawn": 5,
+        "extractor": 5,
+        "lab": 5,
+        "terminal": 5,
+        "container": 9,
+        "nuker": 5,
+        "factory": 5
     },
     "census": {
         "hauler": 2,
         "upgrader": 2,
         "repairer": 2,
-        "builder": 2
+        "builder": 2,
+        "rampartRepairer": 4
     },
     "visuals": {
         "creep_label": {
-            "font_size": 0.4,
+            "font_size": 0.5,
             "opacity": 0.7
         }
     }
