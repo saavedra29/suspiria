@@ -33,7 +33,7 @@ function _getBody(
     if (body.length <= 50) {
         return body;
     } else {
-        return body.slice(0, 50);
+        return body.reverse().slice(0, 50);
     }
 }
 
