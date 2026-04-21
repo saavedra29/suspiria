@@ -16,6 +16,17 @@ function regulateCensus(room: Room) {
                 }).length;
                 _.set(room, 'memory.census.repairer', repairableStructuresNumber ? config.census.repairer : 0);
                 break;
+            case 'rampartRepairer':
+                const repairableRampartsNumber = room.find(FIND_STRUCTURES, {
+                    filter: (structure) =>
+                        structure.structureType === STRUCTURE_RAMPART && structure.hits < structure.hitsMax,
+                }).length;
+                _.set(
+                    room,
+                    'memory.census.rampartRepairer',
+                    repairableRampartsNumber ? config.census.rampartRepairer : 0,
+                );
+                break;
             case 'builder':
                 const sitesNumber = Object.keys(room.find(FIND_MY_CONSTRUCTION_SITES)).length;
                 _.set(room, 'memory.census.builder', sitesNumber ? config.census.builder : 0);
