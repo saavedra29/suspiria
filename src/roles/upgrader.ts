@@ -1,7 +1,7 @@
 import { State } from 'types';
 
 const upgrader = {
-    body: [WORK, WORK, CARRY, MOVE],
+    body: [WORK, CARRY, MOVE, MOVE],
     name: 'upgrader',
     min: 2,
     initState: State.Harvest,

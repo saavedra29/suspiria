@@ -2,7 +2,7 @@ import { State } from 'types';
 import config from '../config.json';
 
 const rampartRepairer = {
-    body: [WORK, WORK, CARRY, MOVE, MOVE], // tweak as needed
+    body: [WORK, CARRY, CARRY, MOVE, MOVE], // tweak as needed
     name: 'rampartRepairer',
     min: 0, // start with 1, increase based on # of ramparts / RCL
     initState: State.Harvest,
