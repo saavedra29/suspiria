@@ -41,6 +41,7 @@ function regulateCensus(room: Room) {
             case 'meleeFighter':
                 const enemiesNum = room.find(FIND_HOSTILE_CREEPS).length;
                 _.set(room, 'memory.census.meleeFighter', enemiesNum ? enemiesNum : meleeFighter.min);
+                break;
             default:
                 console.log(`Can't set census for role ${role}`);
                 break;
