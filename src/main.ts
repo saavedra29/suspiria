@@ -1,12 +1,12 @@
+import { BunkerScheme, maintainBunker } from 'bunkers/bunker';
+import roles from 'roles/all';
+import regulateCensus from 'utils/censusRegulation';
+import constructContainers from 'utils/constructContainers';
 import { ErrorMapper } from 'utils/ErrorMapper';
 import regulateRoleSpawn from 'utils/roleSpawnRegulation';
-import regulateCensus from 'utils/censusRegulation';
-import roles from 'roles/all';
 import roomDefence from 'utils/roomDefence';
-import config from './config.json';
 import bunker_data from './bunker.json';
-import { maintainBunker, BunkerScheme } from 'bunkers/bunker';
-import constructContainers from 'utils/constructContainers';
+import config from './config.json';
 
 const bunker: BunkerScheme = bunker_data;
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -23,7 +23,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         if (room && room.controller && room.controller.my) {
             const containersNum = room.find(FIND_STRUCTURES, { filter: STRUCTURE_CONTAINER }).length;
             const sourcesNum = room.find(FIND_SOURCES).length;
-            if (containersNum < sourcesNum && room.controller.level >= 3) {
+            if (containersNum < sourcesNum && room.controller.level >= config.containerConstructionFromLevel) {
                 constructContainers(room);
             }
 
