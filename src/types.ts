@@ -27,6 +27,7 @@ declare global {
 
     interface RoomMemory {
         census: Map<string, number>;
+        manualCensus: boolean;
     }
 
     interface Role {

@@ -34,7 +34,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
                 _.set(room.memory, 'underAttack', false);
             }
             roomDefence(room);
-            regulateCensus(room);
+            if (!room.memory.manualCensus) {
+                regulateCensus(room);
+            }
             for (let role of roles) {
                 regulateRoleSpawn(room, role);
             }
