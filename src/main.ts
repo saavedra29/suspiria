@@ -6,6 +6,7 @@ import roomDefence from 'utils/roomDefence';
 import config from './config.json';
 import bunker_data from './bunker.json';
 import { maintainBunker, BunkerScheme } from 'bunkers/bunker';
+import constructContainers from 'utils/constructContainers';
 
 const bunker: BunkerScheme = bunker_data;
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -20,6 +21,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     _.forEach(Game.rooms, (room) => {
         if (room && room.controller && room.controller.my) {
+            const containersNum = room.find(FIND_STRUCTURES, { filter: STRUCTURE_CONTAINER }).length;
+            const sourcesNum = room.find(FIND_SOURCES).length;
+            if (containersNum < sourcesNum && room.controller.level >= 3) {
+                constructContainers(room);
+            }
+
             maintainBunker(room, bunker);
             if (room.find(FIND_HOSTILE_CREEPS).length) {
                 _.set(room.memory, 'underAttack', true);
