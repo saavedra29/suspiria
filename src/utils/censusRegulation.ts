@@ -1,4 +1,5 @@
 import roles from 'roles/all';
+import meleeFighter from 'roles/meleeFighter';
 import config from '../config.json';
 
 function regulateCensus(room: Room) {
@@ -37,6 +38,9 @@ function regulateCensus(room: Room) {
                 }).length;
                 _.set(room, 'memory.census.staticHarvester', containersNum);
                 break;
+            case 'meleeFighter':
+                const enemiesNum = room.find(FIND_HOSTILE_CREEPS).length;
+                _.set(room, 'memory.census.meleeFighter', enemiesNum ? enemiesNum : meleeFighter.min);
             default:
                 console.log(`Can't set census for role ${role}`);
                 break;

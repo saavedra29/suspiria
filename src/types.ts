@@ -50,4 +50,5 @@ export enum State {
     Repair,
     Build,
     Load,
+    Fight,
 }
