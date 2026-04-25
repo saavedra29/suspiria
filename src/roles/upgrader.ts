@@ -1,4 +1,5 @@
 import { State } from 'types';
+import { loadEnergy } from 'utils/utils';
 
 const upgrader = {
     body: [WORK, CARRY, MOVE, MOVE],
@@ -16,54 +17,12 @@ const upgrader = {
             creep.say('⚡ upgrade');
         }
 
-        // const noneEmptySources = creep.room.find(FIND_SOURCES, {
-        //     filter: (object) => {
-        //         return object.energy > 0;
-        //     },
-        // });
-
-        const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
-            filter: (s) =>
-                s.structureType === STRUCTURE_CONTAINER &&
-                (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY),
-        });
-
         if (creep.memory.state === State.Upgrade) {
             if (!creep.room.controller) return;
-            if (nonEmptyContainers.length) {
-                const distanceFromSource = creep.pos.getRangeTo(nonEmptyContainers[0]);
-                // TODO Here the upgrader take care not to stay close to the energy storage when idle
-                // in order not to bother (enhance)
-                if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE || distanceFromSource <= 1) {
-                    creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            } else {
-                if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
+            if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
             }
-        } else {
-            if (nonEmptyContainers.length) {
-                const closestNonEmptyContainer = creep.pos.findClosestByPath(nonEmptyContainers);
-                if (closestNonEmptyContainer) {
-                    if (creep.withdraw(closestNonEmptyContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
-                    }
-                }
-            } else {
-                const nonEmptySources = creep.room.find(FIND_SOURCES, {
-                    filter: function (object) {
-                        return object.energy > 0;
-                    },
-                });
-                let closestNonEmptySource = creep.pos.findClosestByPath(nonEmptySources);
-                if (closestNonEmptySource) {
-                    if (creep.harvest(closestNonEmptySource) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestNonEmptySource, { visualizePathStyle: { stroke: '#ffaa00' } });
-                    }
-                }
-            }
-        }
+        } else loadEnergy(creep);
     },
 };
 

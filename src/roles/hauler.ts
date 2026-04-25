@@ -1,4 +1,5 @@
 import { State } from 'types';
+import { loadEnergy } from 'utils/utils';
 
 const hauler = {
     body: [WORK, CARRY, MOVE, MOVE],
@@ -17,31 +18,7 @@ const hauler = {
             creep.memory.state = State.Load;
         }
         if (creep.memory.state === State.Harvest) {
-            const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
-                filter: (s) =>
-                    s.structureType === STRUCTURE_CONTAINER &&
-                    (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY),
-            });
-            if (nonEmptyContainers.length) {
-                const closestNonEmptyContainer = creep.pos.findClosestByPath(nonEmptyContainers);
-                if (closestNonEmptyContainer) {
-                    if (creep.withdraw(closestNonEmptyContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestNonEmptyContainer, { visualizePathStyle: { stroke: '#ffaa00' } });
-                    }
-                }
-            } else {
-                const nonEmptySources = creep.room.find(FIND_SOURCES, {
-                    filter: function (object) {
-                        return object.energy > 0;
-                    },
-                });
-                let closestNonEmptySource = creep.pos.findClosestByPath(nonEmptySources);
-                if (closestNonEmptySource) {
-                    if (creep.harvest(closestNonEmptySource) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestNonEmptySource, { visualizePathStyle: { stroke: '#ffaa00' } });
-                    }
-                }
-            }
+            loadEnergy(creep);
         } else if (creep.memory.state === State.Load) {
             const spawns = creep.room.find(FIND_STRUCTURES, {
                 filter: (s) => s.structureType === STRUCTURE_SPAWN && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,

@@ -9,4 +9,28 @@ function getFreeContainerId(room: Room): Id<StructureContainer> | null {
     return freeContainer ? freeContainer.id : null;
 }
 
-export { getFreeContainerId };
+function loadEnergy(creep: Creep) {
+    // Harvest logic – exactly the same as your repairer (containers first, then sources)
+    const nonEmptyContainers: Array<StructureContainer> = creep.room.find(FIND_STRUCTURES, {
+        filter: (s) =>
+            s.structureType === STRUCTURE_CONTAINER &&
+            (s as StructureContainer).store.getUsedCapacity(RESOURCE_ENERGY) > 0,
+    });
+
+    if (nonEmptyContainers.length) {
+        const closest = creep.pos.findClosestByPath(nonEmptyContainers);
+        if (closest && creep.withdraw(closest, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(closest, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+    } else {
+        const nonEmptySources = creep.room.find(FIND_SOURCES, {
+            filter: (s) => s.energy > 0,
+        });
+        const closestSource = creep.pos.findClosestByPath(nonEmptySources);
+        if (closestSource && creep.harvest(closestSource) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(closestSource, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+    }
+}
+
+export { getFreeContainerId, loadEnergy };
