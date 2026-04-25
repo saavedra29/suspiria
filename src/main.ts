@@ -9,6 +9,22 @@ import bunker_data from './bunker.json';
 import config from './config.json';
 
 const bunker: BunkerScheme = bunker_data;
+
+function saveRampartsToMem(room: Room) {
+    let ramparts: Array<StructureRampart> = room.find(FIND_STRUCTURES, {
+        filter: (s) => {
+            return s.structureType === STRUCTURE_RAMPART && s.hits < s.hitsMax;
+        },
+    });
+    // const goodRampartsNum = ramparts.filter((r) => r.hits > config.rampart.lowestHitsAllowed).length;
+    // const badRampartsNum = ramparts.length - goodRampartsNum;
+    // console.log(`Good ramparts: ${goodRampartsNum}\nBad ramparts: ${badRampartsNum}`);
+    ramparts.sort((a, b) => {
+        return a.hits - b.hits;
+    });
+    room.memory.rampartIdsAscHitpoints = ramparts.map((rampart) => rampart.id);
+}
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -21,6 +37,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     _.forEach(Game.rooms, (room) => {
         if (room && room.controller && room.controller.my) {
+            saveRampartsToMem(room);
+
             const containersNum = room.find(FIND_STRUCTURES, { filter: STRUCTURE_CONTAINER }).length;
             const sourcesNum = room.find(FIND_SOURCES).length;
             if (containersNum < sourcesNum && room.controller.level >= config.containerConstructionFromLevel) {

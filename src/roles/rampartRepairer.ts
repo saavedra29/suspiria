@@ -1,5 +1,6 @@
 import { State } from 'types';
 import { loadEnergy } from 'utils/utils';
+import config from '../config.json';
 
 const rampartRepairer = {
     body: [WORK, CARRY, CARRY, MOVE, MOVE], // tweak as needed
@@ -19,34 +20,28 @@ const rampartRepairer = {
         }
 
         if (creep.memory.state === State.Repair) {
-            // === ALWAYS re-select the lowest-hits rampart (no sticking) ===
-            const candidates = creep.room.find(FIND_STRUCTURES, {
-                filter: (s: Structure) => s.structureType === STRUCTURE_RAMPART && s.hits < s.hitsMax / 50, // or use your getHitmax logic, or a config value
-            });
-
-            if (!candidates.length) {
-                // everything is "good enough" → idle or help main repairer if you want
-                return;
+            let rampartIds = creep.room.memory.rampartIdsAscHitpoints;
+            if (!rampartIds.length) {
+                creep.memory.repairTarget = null;
+            } else if (Game.getObjectById(rampartIds[0])!.hits < config.rampart.lowestHitsAllowed) {
+                creep.memory.repairTarget = rampartIds.shift();
             }
-
-            // Sort by absolute hits (lowest first) → natural balancing
-            candidates.sort((a, b) => a.hits - b.hits);
-
-            const target = candidates[0];
-
-            const repairResult = creep.repair(target);
-
-            if (repairResult === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {
-                    range: 3,
-                    maxRooms: 1,
-                    visualizePathStyle: { stroke: '#ff00ff' },
-                });
-            } else if (repairResult === OK) {
-                // optional: small visual feedback
-                // creep.say('🔨', true);
+            if (creep.memory.repairTarget) {
+                const target = Game.getObjectById(creep.memory.repairTarget);
+                if (target) {
+                    const repairResult = creep.repair(target);
+                    if (repairResult === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, {
+                            range: 3,
+                            maxRooms: 1,
+                            visualizePathStyle: { stroke: '#ff00ff' },
+                        });
+                    }
+                }
             }
-        } else loadEnergy(creep);
+        } else {
+            loadEnergy(creep);
+        }
     },
 };
 

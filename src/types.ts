@@ -28,6 +28,7 @@ declare global {
     interface RoomMemory {
         census: Map<string, number>;
         manualCensus: boolean;
+        rampartIdsAscHitpoints: Array<Id<StructureRampart>>;
     }
 
     interface Role {
