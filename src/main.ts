@@ -9,6 +9,9 @@ import bunker_data from './bunker.json';
 import config from './config.json';
 
 const bunker: BunkerScheme = bunker_data;
+if (Memory.creepLabels === undefined) {
+    Memory.creepLabels = true;
+}
 
 function saveRampartsToMem(room: Room) {
     let ramparts: Array<StructureRampart> = room.find(FIND_STRUCTURES, {
@@ -66,7 +69,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         const roleModule = roles.find((role) => role.name === creep.memory.role);
         if (roleModule) {
             roleModule.run(creep);
-            if (Memory.creepLabels) {
+            if (Memory.creepLabels === true) {
                 creep.room.visual.text(creep.memory.role, creep.pos.x + 0.5, creep.pos.y - 0.5, {
                     color: roleModule?.color,
                     opacity: config.visuals.creep_label.opacity,
