@@ -1,6 +1,24 @@
 import { State } from 'types';
 import { loadEnergy } from 'utils/utils';
 
+const BUILD_PRIORITY: BuildableStructureConstant[] = [
+    STRUCTURE_SPAWN,
+    STRUCTURE_TOWER,
+    STRUCTURE_EXTENSION,
+    STRUCTURE_CONTAINER,
+    STRUCTURE_STORAGE,
+    STRUCTURE_LINK,
+    STRUCTURE_EXTRACTOR,
+    STRUCTURE_TERMINAL,
+    STRUCTURE_LAB,
+    STRUCTURE_FACTORY,
+    STRUCTURE_ROAD,
+    STRUCTURE_NUKER,
+    STRUCTURE_POWER_SPAWN,
+    STRUCTURE_OBSERVER,
+    STRUCTURE_RAMPART, // last — rampartRepairer handles upkeep
+];
+
 const builder = {
     body: [WORK, CARRY, MOVE, MOVE],
     name: 'builder',
@@ -20,14 +38,29 @@ const builder = {
         if (creep.memory.state === State.Build) {
             const constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
             if (constructionSites.length) {
-                const extensionSites = _.filter(
-                    constructionSites,
-                    (site) => site.structureType === STRUCTURE_EXTENSION,
+                // Find the highest priority type that has at least one site
+                const priorityType = BUILD_PRIORITY.find((type) =>
+                    constructionSites.some((s) => s.structureType === type),
                 );
-                const sites = extensionSites.length ? extensionSites : constructionSites;
-                const buildRes = creep.build(sites[0]);
-                if (buildRes === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sites[0], { visualizePathStyle: { stroke: '#ffffff' } });
+
+                const candidates = priorityType
+                    ? constructionSites.filter((s) => s.structureType === priorityType)
+                    : constructionSites;
+
+                const target = candidates.reduce((best, site) => {
+                    const bestRatio = best.progress / best.progressTotal;
+                    const siteRatio = site.progress / site.progressTotal;
+
+                    if (siteRatio > bestRatio) return site;
+                    if (siteRatio === bestRatio) {
+                        // tiebreak: prefer closer one
+                        return creep.pos.getRangeTo(site) < creep.pos.getRangeTo(best) ? site : best;
+                    }
+                    return best;
+                });
+
+                if (creep.build(target) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
         } else loadEnergy(creep);
