@@ -112,16 +112,28 @@ export function maintainBunker(room: Room, scheme: BunkerScheme): void {
         });
 
         for (const wantedType of wantedTypes) {
+            if (wantedType === STRUCTURE_RAMPART) continue;
+
             const hasCorrectStructure = structuresHere.some((s) => s.structureType === wantedType);
             const hasCorrectSite = sitesHere.some((s) => s.structureType === wantedType);
 
-            if (hasCorrectStructure || hasCorrectSite) {
-                continue;
-            }
+            if (hasCorrectSite || hasCorrectStructure) continue;
 
-            // Create it (Screeps silently fails for invalid cases like rampart on a tower/spawn, full RCL, etc.)
             room.createConstructionSite(x, y, wantedType as BuildableStructureConstant);
             break;
+        }
+
+        if (wantedTypeSet.has(STRUCTURE_RAMPART)) {
+            const nonRampartTypes = wantedTypes.filter((t) => t !== STRUCTURE_RAMPART);
+            const allNonRampartsBuilt = nonRampartTypes.every((t) => structuresHere.some((s) => s.structureType === t));
+            if (allNonRampartsBuilt) {
+                const hasRampart = structuresHere.some((s) => s.structureType === STRUCTURE_RAMPART);
+                const hasRamaprtSite = sitesHere.some((s) => s.structureType === STRUCTURE_RAMPART);
+
+                if (!hasRampart && !hasRamaprtSite) {
+                    room.createConstructionSite(x, y, STRUCTURE_RAMPART as BuildableStructureConstant);
+                }
+            }
         }
     }
 }
