@@ -29,5 +29,8 @@
             "opacity": 0.7
         }
     },
-    "containerConstructionFromLevel": 2
+    "containerConstructionFromLevel": 2,
+    "rampart": {
+        "lowestHitsAllowed": 2000
+    }
 }
