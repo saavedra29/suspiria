@@ -21,7 +21,7 @@
         "upgrader": 2,
         "repairer": 2,
         "builder": 2,
-        "rampartRepairer": 4
+        "rampartRepairer": 1
     },
     "visuals": {
         "creep_label": {
