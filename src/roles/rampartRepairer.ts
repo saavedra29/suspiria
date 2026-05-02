@@ -21,11 +21,29 @@ const rampartRepairer = {
 
         if (creep.memory.state === State.Repair) {
             let rampartIds = creep.room.memory.rampartIdsAscHitpoints;
-            if (!rampartIds.length) {
+            if (rampartIds.length === 0) {
                 creep.memory.repairTarget = null;
-            } else if (Game.getObjectById(rampartIds[0])!.hits < config.rampart.lowestHitsAllowed) {
-                creep.memory.repairTarget = rampartIds.shift();
+                return;
             }
+
+            if (!creep.memory.repairTarget) {
+                creep.memory.repairTarget = creep.room.memory.rampartIdsAscHitpoints.shift();
+            } else {
+                const target = Game.getObjectById(creep.memory.repairTarget);
+                const possibleNextTarget = Game.getObjectById(
+                    creep.room.memory.rampartIdsAscHitpoints[0] as Id<_HasId>,
+                ) as StructureRampart;
+                if (!target) {
+                    creep.memory.repairTarget = creep.room.memory.rampartIdsAscHitpoints.shift();
+                } else {
+                    const targetBelowAllowed = target.hits < config.rampart.lowestHitsAllowed;
+                    const possibleNextBelowAllowed = possibleNextTarget.hits < config.rampart.lowestHitsAllowed;
+                    if (possibleNextBelowAllowed && !targetBelowAllowed) {
+                        creep.memory.repairTarget = creep.room.memory.rampartIdsAscHitpoints.shift();
+                    }
+                }
+            }
+
             if (creep.memory.repairTarget) {
                 const target = Game.getObjectById(creep.memory.repairTarget);
                 if (target) {
