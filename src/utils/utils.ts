@@ -33,4 +33,31 @@ function loadEnergy(creep: Creep) {
     }
 }
 
-export { getFreeContainerId, loadEnergy };
+function getWalkableTilesAround(roomPosition: RoomPosition, room: Room): RoomPosition[] {
+    const terrain = room.getTerrain();
+    const positions: RoomPosition[] = [];
+
+    for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+            if (dx === 0 && dy === 0) continue;
+            const x = roomPosition.x + dx;
+            const y = roomPosition.y + dy;
+            if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
+            const pos = new RoomPosition(x, y, room.name);
+
+            const structures = pos.lookFor(LOOK_STRUCTURES);
+            const hasBlocking = structures.some(
+                (s) =>
+                    s.structureType !== STRUCTURE_CONTAINER &&
+                    s.structureType !== STRUCTURE_ROAD &&
+                    s.structureType !== STRUCTURE_RAMPART,
+            );
+            if (hasBlocking) continue;
+            positions.push(pos);
+        }
+    }
+
+    return positions;
+}
+
+export { getFreeContainerId, loadEnergy, getWalkableTilesAround };
