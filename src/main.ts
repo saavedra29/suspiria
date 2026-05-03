@@ -43,8 +43,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
             saveRampartsToMem(room);
 
             const containersNum = room.find(FIND_STRUCTURES, { filter: STRUCTURE_CONTAINER }).length;
+            const structuresNum = room.find(FIND_CONSTRUCTION_SITES, {
+                filter: (c) => c.structureType === STRUCTURE_CONTAINER,
+            }).length;
             const sourcesNum = room.find(FIND_SOURCES).length;
-            if (containersNum < sourcesNum && room.controller.level >= config.containerConstructionFromLevel) {
+            if (
+                containersNum + structuresNum < sourcesNum &&
+                room.controller.level >= config.containerConstructionFromLevel
+            ) {
                 constructContainers(room);
             }
 
