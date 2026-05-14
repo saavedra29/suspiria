@@ -1,20 +1,20 @@
 {
-  "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "types": ["screeps", "lodash", "node", "mocha"],
-    "module": "esnext",
-    "lib": ["es2018", "DOM"],
-    "target": "es2018",
-    "moduleResolution": "Node",
-    "outDir": "dist",
-    "baseUrl": "src/",
-    "sourceMap": true,
-    "strict": true,
-    "experimentalDecorators": true,
-    "noImplicitReturns": true,
-    "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false,
-    "resolveJsonModule": true
-  },
-  "exclude": ["node_modules"]
+    "compilerOptions": {
+        "ignoreDeprecations": "6.0",
+        "types": ["screeps", "lodash", "node", "mocha"],
+        "module": "esnext",
+        "lib": ["es2018", "DOM"],
+        "target": "es2018",
+        "moduleResolution": "Node",
+        "outDir": "dist",
+        "baseUrl": "src/",
+        "sourceMap": true,
+        "strict": true,
+        "experimentalDecorators": true,
+        "noImplicitReturns": true,
+        "allowSyntheticDefaultImports": true,
+        "allowUnreachableCode": false,
+        "resolveJsonModule": true
+    },
+    "exclude": ["node_modules", "_archive"]
 }
