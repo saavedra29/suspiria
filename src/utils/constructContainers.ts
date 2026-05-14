@@ -6,6 +6,19 @@ function constructContainers(room: Room) {
     if (!sources.length) return;
     for (const source of sources) {
         const walkableAround = getWalkableTilesAround(source.pos, room);
+
+        // Skip if a container already exists near the source
+        const alreadyHasContainer = walkableAround.some((pos) =>
+            pos.lookFor(LOOK_STRUCTURES).some((s) => s.structureType === STRUCTURE_CONTAINER),
+        );
+        if (alreadyHasContainer) continue;
+
+        // Skip if a construction site already exists near the source
+        const alreadyHasSite = walkableAround.some((pos) =>
+            pos.lookFor(LOOK_CONSTRUCTION_SITES).some((s) => s.structureType === STRUCTURE_CONTAINER),
+        );
+        if (alreadyHasSite) continue;
+
         const sortedWalkableAround = walkableAround.sort((a, b) => {
             return getWalkableTilesAround(b, room).length - getWalkableTilesAround(a, room).length;
         });
