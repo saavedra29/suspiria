@@ -23,12 +23,15 @@ declare global {
         state: State;
         assignedContainer?: Id<StructureContainer> | null;
         repairTarget?: Id<Structure> | null;
+        assignedStorageLink?: Id<StructureLink> | null;
     }
 
     interface RoomMemory {
         census: Map<string, number>;
         manualCensus: boolean;
         rampartIdsAscHitpoints: Array<Id<StructureRampart>>;
+        storageId: Id<StructureStorage> | null;
+        storageLinkId: Id<StructureLink> | null;
     }
 
     interface Role {

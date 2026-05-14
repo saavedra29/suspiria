@@ -38,6 +38,9 @@ function regulateCensus(room: Room) {
                 }).length;
                 _.set(room, 'memory.census.staticHarvester', containersNum);
                 break;
+            case 'storageLoader':
+                _.set(room, 'memory.census.storageLoader', room.memory.storageLinkId ? 1 : 0);
+                break;
             case 'meleeFighter':
                 const enemiesNum = room.find(FIND_HOSTILE_CREEPS).length;
                 _.set(room, 'memory.census.meleeFighter', enemiesNum ? enemiesNum : meleeFighter.min);

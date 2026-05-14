@@ -7,6 +7,7 @@ import regulateRoleSpawn from 'utils/roleSpawnRegulation';
 import roomDefence from 'utils/roomDefence';
 import bunker_data from './bunker.json';
 import config from './config.json';
+import { runSourceLinks } from 'links/sourceLink';
 
 const bunker: BunkerScheme = bunker_data;
 if (Memory.creepLabels === undefined) {
@@ -28,6 +29,21 @@ function saveRampartsToMem(room: Room) {
     room.memory.rampartIdsAscHitpoints = ramparts.map((rampart) => rampart.id);
 }
 
+function checkRoomMemory(room: Room) {
+    if (room.memory.storageId) {
+        const storage = Game.getObjectById(room.memory.storageId);
+        if (!storage) {
+            room.memory.storageId = null;
+        }
+    }
+    if (room.memory.storageLinkId) {
+        const storageLink = Game.getObjectById(room.memory.storageLinkId);
+        if (!storageLink) {
+            room.memory.storageLinkId = null;
+        }
+    }
+}
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -41,6 +57,33 @@ export const loop = ErrorMapper.wrapLoop(() => {
     _.forEach(Game.rooms, (room) => {
         if (room && room.controller && room.controller.my) {
             saveRampartsToMem(room);
+            checkRoomMemory(room);
+
+            // save storage to memory
+            if (room.controller.level >= 4 && !room.memory.storageId) {
+                const storage = room.find(FIND_STRUCTURES, {
+                    filter: (s) => s.structureType === STRUCTURE_STORAGE,
+                })[0];
+                if (storage) {
+                    room.memory.storageId = storage.id as Id<StructureStorage>;
+                }
+            }
+
+            // save storage link to memory
+            if (room.controller.level >= 5 && room.memory.storageId && !room.memory.storageLinkId) {
+                const storage = Game.getObjectById(room.memory.storageId);
+                if (storage) {
+                    const links = room.find(FIND_STRUCTURES, { filter: (s) => s.structureType === STRUCTURE_LINK });
+                    for (const link of links) {
+                        if (link.pos.getRangeTo(storage) === 1) {
+                            room.memory.storageLinkId = link.id as Id<StructureLink>;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            runSourceLinks(room);
 
             const containersNum = room.find(FIND_STRUCTURES, { filter: STRUCTURE_CONTAINER }).length;
             const structuresNum = room.find(FIND_CONSTRUCTION_SITES, {

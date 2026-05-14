@@ -5,6 +5,16 @@ import staticHarvester from 'roles/staticHarvester';
 import upgrader from 'roles/upgrader';
 import meleeFighter from './meleeFighter';
 import rampartRepairer from './rampartRepairer';
+import storageLoader from './storageLoader';
 
-const roles = [hauler, builder, staticHarvester, repairer, rampartRepairer, upgrader, meleeFighter].reverse();
+const roles = [
+    hauler,
+    builder,
+    staticHarvester,
+    storageLoader,
+    repairer,
+    rampartRepairer,
+    upgrader,
+    meleeFighter,
+].reverse();
 export default roles;
